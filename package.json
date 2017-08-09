@@ -1,7 +1,7 @@
 {
   "name": "sprite-timeline",
   "version": "1.0.0",
-  "description": "Represents custom timelines for animations or other tasks.",
+  "description": "Custom timelines  for manipulate sprite animation.",
   "main": "lib/index.js",
   "directories": {
     "example": "example"
