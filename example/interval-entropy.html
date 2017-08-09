@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+  <title>Demo</title>
+  <style>
+    *{      
+      -webkit-touch-callout: auto; /* prevent callout to copy image, etc when tap to hold */      
+      -webkit-text-size-adjust: none; /* prevent webkit from resizing text to fit */      
+      -webkit-tap-highlight-color: rgba(0,0,0,0); /* make transparent link selection, adjust last value opacity 0 to 1.0 */       
+      -webkit-user-select:none;
+    }  
+    html,body {
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      margin: 0;
+      max-width: 500px;
+    }
+    #ball {
+      position: absolute;
+      left: 50px;
+      top: 50px;
+      width: 50px;
+      height: 50px;
+      line-height: 50px;
+      text-align: center;
+      border-radius: 50%;
+      overflow: hidden;
+      background: red;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <button id="speedUp">Speed Up</button>
+  <button id="slowDown">Slow Down</button>
+  <button id="reverse">Reverse</button>
+  <button id="pause">Stop</button>
+  <div id="ball">0</div>
+  <script src="/js/index.js"></script>
+  <script>
+    const T = 2000
+    let timeline = new Timeline()
+
+    timeline.setInterval(function update() {
+      ball.innerHTML = Math.round(timeline.currentTime / 100)
+      if(timeline.playbackRate < 0){
+        ball.style.backgroundColor = 'green'
+      } else {
+        ball.style.backgroundColor = 'red'
+      }
+    }, {entropy: 100})
+
+    speedUp.onclick = function(){
+      if(timeline) timeline.playbackRate += 0.2
+    }
+
+    slowDown.onclick = function(){
+      if(timeline) timeline.playbackRate -= 0.2
+    }
+
+    reverse.onclick = function(){
+      if(timeline) timeline.playbackRate = -timeline.playbackRate
+    }
+
+    pause.onclick = function(){
+      if(timeline) timeline.playbackRate = 0
+    }
+  </script>
+</body>
+</html>

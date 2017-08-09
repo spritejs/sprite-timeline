@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+  <title>Demo</title>
+</head>
+<body>
+  <script src="/js/index.js"></script>
+  <script>
+    const timeline = new Timeline({playbackRate: 1})
+
+    let i = 0
+    const timerID = timeline.setInterval(function(){
+      console.log(++i)
+      if(!(i % 5)){
+        timeline.playbackRate ++
+      }
+      if(!(i % 20)){
+        timeline.clearTimeout(timerID)
+      }
+    }, 1000)
+  </script>
+</body>
+</html>

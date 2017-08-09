@@ -1,0 +1,48 @@
+{
+  "name": "sprite-timeline",
+  "version": "0.1.0",
+  "description": "Pepresents custom timelines for animations or other tasks.",
+  "main": "lib/index.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "ava --serial",
+    "lint": "eslint 'lib/**/*.js' --fix",
+    "start": "webpack-dev-server -d --quiet --port 9090 & http-server example -c-1 -p 9091",
+    "deploy": "rm -rf dist/* && ./script/deploy.js"
+  },
+  "keywords": [],
+  "author": "",
+  "repository" : {
+    "type" : "git",
+    "url" : "https://github.com/spritejs/sprite-timeline"
+  },
+  "license": "MIT",
+  "dependencies": {
+
+  },
+  "devDependencies": {
+    "ava": "^0.21.0",
+    "babel-core": "^6.24.0",
+    "babel-eslint": "^7.2.3",
+    "babel-loader": "^6.4.1",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-decorators-legacy": "^1.3.4",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.3.2",
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb-base": "^11.2.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-vue": "^2.1.0",
+    "http-server": "^0.9.0",
+    "webpack": "^2.3.3",
+    "webpack-dev-server": "^2.4.2"
+  },
+  "ava": {
+    "require": [
+      "babel-register"
+    ],
+    "babel": "inherit"
+  }
+}
