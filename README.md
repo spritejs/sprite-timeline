@@ -1,5 +1,10 @@
 # Sprite Timeline
 
+[![npm status](https://img.shields.io/npm/v/sprite-timeline.svg)](https://www.npmjs.org/package/sprite-timeline)
+[![build status](https://api.travis-ci.org/spritejs/sprite-timeline.svg?branch=master)](https://travis-ci.org/spritejs/sprite-timeline) 
+[![dependency status](https://david-dm.org/spritejs/sprite-timeline.svg)](https://david-dm.org/spritejs/sprite-timeline)
+[![coverage status](https://img.shields.io/coveralls/spritejs/sprite-timeline.svg)](https://coveralls.io/github/spritejs/sprite-timeline)
+
 Pepresents custom timelines for animations or other tasks.
 
 ## Installation

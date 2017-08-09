@@ -1,4 +1,4 @@
-const Timeline = require('../lib/timeline')
+const Timeline = require('../lib/index')
 
 const test = require("ava")
 
