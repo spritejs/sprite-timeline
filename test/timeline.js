@@ -1,35 +1,91 @@
 const Timeline = require('../lib/index')
-
+const colors = require('colors')
 const test = require("ava")
 
 function sleep(time) {
-  return new Promise(resolve => setTimeout(resolve, time))
+  const startTime = Date.now()
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve(Date.now() - startTime)
+    }, time)
+  })
 }
 
-test('1 - default timeline', async (t) => {
-  const timeline = new Timeline()
 
-  t.truthy(timeline.currentTime < 20)
+function makeTimeCompare(caseID, startTime){
+  return function(time, expect){
+    const precision = Math.abs(time - expect),
+          passedTime = Math.max(Date.now() - startTime, 100),
+          percent = precision / passedTime
 
-  const current = timeline.globalTime
+    let color = colors.green,
+        pass = true
 
+    if(percent > 0.05 && percent <= 0.10){
+      color = colors.cyan
+    }
+    if(percent > 0.10 && percent <= 0.20){
+      color = colors.yellow
+    }
+    if(percent > 0.20){
+      color = colors.red
+      pass = false
+    }
+
+    console.log(color(`${caseID} - actual: ${time}, expect: ${expect}, precision: ${precision} | ${percent.toFixed(2)}`))
+
+    return pass    
+  }
+}
+
+function _case(fn){
+  const caseID = _case.caseID || 0
+  _case.caseID = caseID + 1
+  return async function(t){
+    const startTime = Date.now()
+    t.time_compare = makeTimeCompare(caseID, startTime)
+    return await fn(t)
+  }
+}
+
+function _caseSync(fn){
+  const caseID = _case.caseID || 0
+  _case.caseID = caseID + 1
+  return function(t){
+    const startTime = Date.now()
+    t.time_compare = makeTimeCompare(caseID, startTime)
+    return fn(t)
+  }
+}
+
+test('default timeline', _case(async (t) => {
+  t.plan(2)
+
+  const timeline = new Timeline(),
+        startTime = timeline.globalTime
+
+  t.truthy(t.time_compare(timeline.currentTime, 0))
   await sleep(50)
 
-  t.truthy(Math.abs(timeline.currentTime - (timeline.globalTime - current)) < 5)
-})
+  t.truthy(t.time_compare(timeline.currentTime, timeline.globalTime - startTime))
+}))
 
-test('2 - timeline originTime', async (t) => {
+test('timeline originTime', _case(async (t) => {
+  t.plan(2)
+
   const timeline = new Timeline({originTime: 50})
 
-  t.truthy(timeline.currentTime < -45)
-  t.truthy(timeline.currentTime >= -50)
+  t.truthy(t.time_compare(timeline.currentTime, -50))
 
-  await sleep(100)
+  const now = timeline.currentTime
+  let passedTime = await sleep(100)
 
-  t.truthy(Math.abs(timeline.currentTime - 50) < 30)
-})
+  t.truthy(t.time_compare(timeline.currentTime - now, passedTime))
+}))
 
-test('3 - timeline paused', async (t) => {
+test('timeline paused', _case(async (t) => {
+  t.plan(1)
+
   const timeline = new Timeline()
 
   await sleep(50)
@@ -37,106 +93,157 @@ test('3 - timeline paused', async (t) => {
   timeline.playbackRate = 0
   const current = timeline.currentTime
 
-  console.log('3 - current: %s', current)
-
   await sleep(50)
 
-  t.truthy(timeline.currentTime === current)
-})
+  t.truthy(t.time_compare(timeline.currentTime, current))
+}))
 
-test('4 - timeline playbackRate', async (t) => {
+test('timeline playbackRate', _case(async (t) => {
+  t.plan(1)
+
   const timeline = new Timeline()
-
-  await sleep(50)
+  let passedTime = await sleep(50)
 
   timeline.playbackRate = 0
-  console.log('4 - current: %s', timeline.currentTime)
   await sleep(50)
 
   timeline.playbackRate = 2.0
-  await sleep(50)
-  console.log('4 - current: %s', timeline.currentTime)
+  passedTime += await sleep(50) * 2
 
   timeline.playbackRate = -1.0
-  await sleep(150)
-  console.log('4 - current: %s', timeline.currentTime)
+  passedTime -= await sleep(150)
 
-  t.truthy(Math.abs(timeline.currentTime) <= 50)
-})
+  t.truthy(t.time_compare(timeline.currentTime, passedTime))
+}))
 
-test('5 - timeline entropy', async (t) => {
+test('timeline entropy', _case(async (t) => {
   const timeline = new Timeline()
-  await sleep(50)
+  let passedTime = await sleep(50)
 
   timeline.playbackRate = 2.0
-  await sleep(50)
+  passedTime += await sleep(50) * 2
 
   timeline.playbackRate = -3.0
-  await sleep(50)
+  passedTime += await sleep(50) * 3
 
-  console.log('5 - current: %s', timeline.currentTime)
-  console.log('5 - entropy: %s', timeline.entropy)
+  t.truthy(t.time_compare(timeline.entropy, passedTime))
+}))
 
-  t.truthy(Math.abs(timeline.entropy - 300) <= 150)
-})
+test('entropy and playRate', _case(async (t) => {
+  t.plan(3)
 
-test('6 - seek entropy', async (t) => {
   const timeline = new Timeline()
-  await sleep(50)
+  let passedTime = await sleep(50)
+  
+  let passedEntropy = passedTime
+
+  t.truthy(t.time_compare(timeline.entropy, timeline.currentTime))
+
+  timeline.playbackRate = -2
+  let passed = await sleep(50)
+
+  passedTime -= passed * 2
+  passedEntropy += passed * 2
+
+  t.truthy(t.time_compare(timeline.currentTime, passedTime))
+  t.truthy(t.time_compare(timeline.entropy, passedEntropy))
+}))
+
+
+test('seek entropy', _case(async (t) => {
+  t.plan(3)
+
+  const timeline = new Timeline()
+  let passedTime = await sleep(50)
 
   timeline.playbackRate = 2.0
-  await sleep(50)
+  let passedTime2 = passedTime + await sleep(50) * 2
 
   let idx = timeline.seekTimeMark(10)
   t.is(idx, 0)
 
-  idx = timeline.seekTimeMark(80)
+  idx = timeline.seekTimeMark(passedTime + 25)
   t.is(idx, 1)
 
   timeline.currentTime = 3.0
   await sleep(100)
-  idx = timeline.seekTimeMark(200)
 
+  idx = timeline.seekTimeMark(passedTime2 + 50)
   t.is(idx, 2)
-})
+}))
 
-test.cb('6 - timeline setTimeout time', t => {
+test('seek time', _case(async (t) => {
+  const timeline = new Timeline({playbackRate: 2}),
+        now = timeline.globalTime
+
+  let localTime = timeline.seekLocalTime(200)
+
+  t.truthy(t.time_compare(localTime, 200))
+
+  let globalTime = timeline.seekGlobalTime(300)
+
+  t.truthy(t.time_compare(globalTime - now, 150))
+}))
+
+test.cb('timeline setTimeout time', _caseSync(t => {
+  t.plan(1)
+
   const timeline = new Timeline()
   timeline.playbackRate = -2
 
   const now = timeline.globalTime
 
   timeline.setTimeout(() => {
-    console.log('6 - global: %s', timeline.globalTime - now)
-    console.log('6 - current: %s', timeline.currentTime)
-    t.truthy(Math.abs(timeline.currentTime + 100) <= 30)
+    let passedTime = timeline.globalTime - now
+
+    t.truthy(t.time_compare(timeline.currentTime, passedTime * -2))
     t.end()
   }, {time: -100})
-})
+}))
 
-test.cb('7 - timeline setTimeout entropy', t => {
+test.cb('timeline setTimeout entropy', _caseSync(t => {
+  t.plan(2)
+
   const timeline = new Timeline()
-  timeline.setTimeout(() => {
-    console.log('7 - current: %s', timeline.currentTime)
-    t.truthy(Math.abs(timeline.currentTime - 100) <= 30)
-    t.end()
-  }, {entropy: 100})
-})
+  let now = timeline.globalTime
 
-test.cb('8 - timeline setTimeout playbackRate', t => {
+  timeline.setTimeout(() => {
+    let passedTime = timeline.globalTime - now
+
+    t.truthy(Math.abs(timeline.currentTime, passedTime))
+    
+    timeline.playbackRate = -2
+
+    now = timeline.globalTime
+    timeline.setTimeout(() => {
+      let passedTime2 = timeline.globalTime - now
+      passedTime2 *= 2
+
+      t.truthy(t.time_compare(timeline.entropy, passedTime + passedTime2))
+
+      t.end()
+    }, {entropy: 100})
+  }, {entropy: 100})
+}))
+
+test.cb('timeline setTimeout playbackRate', _caseSync(t => {
   const timeline = new Timeline({playbackRate: 2})
 
-  const now = timeline.globalTime
+  let now = timeline.globalTime
+
+  let passedTime = 0, passedTime2 = 0
   
   setTimeout(() => {
+    passedTime += timeline.globalTime - now
+    now = timeline.globalTime
     timeline.playbackRate = 1
   }, 200)
 
   timeline.setTimeout(() => {
-    console.log('8 - current: %s', timeline.currentTime)
-    console.log('8 - entropy: %s', timeline.entropy)
-    console.log('8 - time: %s', timeline.globalTime - now)
-    t.truthy(Math.abs(timeline.globalTime - now - 800) <= 100)
+    passedTime2 += timeline.globalTime - now
+    
+    t.truthy(t.time_compare(timeline.currentTime, passedTime * 2 + passedTime2))
+
     t.end()
   }, 1000)
-})
+}))
