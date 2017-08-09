@@ -118,7 +118,7 @@ If the **playbackRate** is set to 1.0(by default), the time-lapse rate is normal
 
 ### properties
 
-#### currentTime : number
+#### currentTime
 
 Get or set the currentTime of the timeline according to the lastest playbackRate(see. [playbackRate](#playbackRate)).
 
@@ -136,7 +136,7 @@ const timerID = setInterval(() => {
 //output: -4,-3,-2,-1,0,1,2,3,4,5
 ```
 
-#### entropy : number
+#### entropy
 
 Both currentTime and entropy should be influenced by playbackRate. If current playbackRate is negative, the currentTime should go backwards while the entropy remain to go forwards. Both currentTime and entropy's initial values should be -originTime.
 
@@ -158,7 +158,7 @@ setTimeout(() => {
 //output: -4,-4,-3,-3,-2,-2,-1,-1,0,0,-1,1,-2,2,-3,3,-4,4,-5,5
 ```
 
-#### playbackRate : number
+#### playbackRate
 
 Speed up or slow down the time-lapse. If playbackRate set to negative the time go backwards.
 
@@ -263,6 +263,18 @@ const timerID = timeline.setInterval(function(){
   }
 }, 1000)
 ```
+
+#### clearInterval
+
+The  same as clearTimeout
+
+#### seekLocalTime
+
+Seek localTime by entropy.
+
+#### seekGlobalTime
+
+Seek globalTime by entropy.
 
 ## License
 
