@@ -94,19 +94,19 @@ pause.onclick = function(){
 
 ##### Properties
 
-* currentTime
-* entropy
-* playbackRate
-* **readonly** globalTime
+* [currentTime](#currentTime)
+* [entropy](#entropy)
+* [playbackRate](#playbackRate)
+* **readonly** [globalTime](#globalTime)
 
 ##### Methods
 
-* setTimeout(func, delay)
-* setInterval(func, delay)
-* clearTimeout(id)
-* clearInterval(id)
-* seekLocalTime(entropy)
-* seekGlobalTime(entropy)
+* [setTimeout(func, delay)](#setTimeout)
+* [setInterval(func, delay)](#setInterval)
+* [clearTimeout(id)](#clearTimeout)
+* [clearInterval(id)](#clearInterval)
+* [seekLocalTime(entropy)](#seekLocalTime)
+* [seekGlobalTime(entropy)](#seekGlobalTime)
 
 ### constructor
 
