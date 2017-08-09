@@ -5,7 +5,7 @@
 [![dependency status](https://david-dm.org/spritejs/sprite-timeline.svg)](https://david-dm.org/spritejs/sprite-timeline)
 [![coverage status](https://img.shields.io/coveralls/spritejs/sprite-timeline.svg)](https://coveralls.io/github/spritejs/sprite-timeline)
 
-Pepresents custom timelines for animations or other tasks.
+Represents custom timelines for animations or other tasks.
 
 ## Installation
 
