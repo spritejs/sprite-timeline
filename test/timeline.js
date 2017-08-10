@@ -70,6 +70,22 @@ test('default timeline', _case(async (t) => {
   t.truthy(t.time_compare(timeline.currentTime, timeline.globalTime - startTime))
 }))
 
+test('nowtime', _case(async (t) => {
+  const performance = global.performance
+  if(performance){
+    global.performance = null
+  } else {
+    global.performance = {
+      now: () => Date.now()
+    }
+  }
+
+  const timeline = new Timeline()
+  t.truthy(t.time_compare(timeline.globalTime, Date.now()))
+
+  global.performance = performance
+}))
+
 test('timeline originTime', _case(async (t) => {
   t.plan(2)
 
@@ -191,6 +207,16 @@ test('set entropy', _case(async (t) => {
 
   await sleep(10)
   t.truthy(t.time_compare(timeline.currentTime - localTime25, (timeline.globalTime - globalTime25) * 2))
+}))
+
+test('set entropy 2', _case(async (t) => {
+  const timeline = new Timeline()
+  timeline.entropy = 100
+  timeline.currentTime = 100
+  timeline.entropy = 200
+
+  let localTime = timeline.seekLocalTime(100)
+  t.truthy(t.time_compare(localTime, 0))
 }))
 
 test('seek time', _case(async (t) => {
@@ -353,6 +379,32 @@ test.cb('timeline interval change playbackRate', _caseSync(t => {
       timeline.currentTime = 0
     }
   }, 100)
+}))
+
+test.cb('timeline interval change playbackRate 2', _caseSync(t => {
+  t.plan(20)
+  const timeline = new Timeline({playbackRate: 2})
+
+  let i = 0, count = 0
+  const now = timeline.globalTime
+  const id = timeline.setInterval(() => {
+    count++
+    if(count <= 5){
+      i = Math.round(timeline.currentTime / 200)
+    } else {
+      i = 10 - Math.round(timeline.currentTime / 200)
+    }
+    t.is(count, i)
+    i = Math.round((timeline.globalTime - now) / 100)
+    t.is(count, i)
+    if(count >= 5){
+      timeline.playbackRate = -2
+    }
+    if(count >= 10){
+      timeline.clearTimeout(id)
+      t.end()
+    }
+  }, {entropy: 200})
 }))
 
 test.cb('timeline setTimeout entropy', _caseSync(t => {
