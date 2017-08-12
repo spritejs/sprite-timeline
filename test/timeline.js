@@ -469,7 +469,6 @@ test.cb('timeline fork setInterval & clearInterval', _caseSync(t => {
   const baseTimeline = new Timeline({playbackRate : 2}),
         timeline = new Timeline(baseTimeline) // the same as baseTimeline.fork()
 
-  timeline.playbackRate = 2
   let i = 0
 
   const now = timeline.globalTime, baseNow = baseTimeline.globalTime
@@ -485,4 +484,6 @@ test.cb('timeline fork setInterval & clearInterval', _caseSync(t => {
       }, 500)
     }
   }, 100)
+  
+  timeline.playbackRate = 2
 }))
