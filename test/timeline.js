@@ -453,3 +453,35 @@ test.cb('timeline setTimeout playbackRate', _caseSync(t => {
     t.end()
   }, 1000)
 }))
+
+test('timeline fork', _case(async t => {
+  const timeline = new Timeline({playbackRate: 2}),
+        timeline2 = timeline.fork({playbackRate: 3})
+
+  const passedTime = await sleep(200)
+
+  t.truthy(t.time_compare(timeline.entropy, passedTime * 2))
+  t.truthy(t.time_compare(timeline2.entropy, passedTime * 6))
+}))
+
+test.cb('timeline fork setInterval & clearInterval', _caseSync(t => {
+  t.plan(3)
+  const baseTimeline = new Timeline({playbackRate: 2}),
+        timeline = new Timeline(baseTimeline) // the same as baseTimeline.fork()
+
+  let i = 0
+
+  const now = timeline.globalTime, baseNow = baseTimeline.globalTime
+  const id = timeline.setInterval(() => {
+    i++
+    if(i >= 5){
+      timeline.clearInterval(id)
+      t.truthy(t.time_compare(timeline.currentTime, timeline.globalTime - now))
+      t.truthy(t.time_compare(timeline.currentTime, (baseTimeline.globalTime - baseNow) * 2))
+      setTimeout(() => {
+        t.is(i, 5)
+        t.end()
+      }, 500)
+    }
+  }, 100)
+}))

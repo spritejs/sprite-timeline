@@ -110,6 +110,7 @@ pause.onclick = function(){
 * [setInterval(func, delay)](#setinterval)
 * [clearTimeout(id)](#cleartimeout)
 * [clearInterval(id)](#clearinterval)
+* [fork(options)](#fork)
 * [seekLocalTime(entropy)](#seeklocaltime)
 * [seekGlobalTime(entropy)](#seekglobaltime)
 
@@ -272,6 +273,21 @@ const timerID = timeline.setInterval(function(){
 #### clearInterval
 
 The  same as clearTimeout
+
+#### fork
+
+Fork a new timeline based on current timeline.
+
+```js
+const baseTimeline = new Timeline()
+
+const timeline1 = baseTimeline.fork(),
+      timeline2 = baseTimeline.fork({playbackRate: 2})
+
+...
+
+baseTimeline.playbackRate = 2 // Should speed up all forked timelines.
+```
 
 #### seekLocalTime
 
