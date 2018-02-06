@@ -32,7 +32,7 @@ module.exports = function (env = {}) {
   }
 
   return {
-    entry: './lib/index.js',
+    entry: './src/index.js',
     output: {
       filename: env.production ? `sprite-timeline-${version}.js` : 'index.js',
       path: path.resolve(__dirname, 'dist'),

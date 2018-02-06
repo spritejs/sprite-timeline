@@ -8,9 +8,11 @@
   },
   "scripts": {
     "test": "nyc ava --serial",
-    "lint": "eslint 'lib/**/*.js' --fix",
+    "lint": "eslint 'src/**/*.js' --fix",
     "start": "webpack-dev-server -d --quiet --port 9090 & http-server example -c-1 -p 9091",
-    "deploy": "rm -rf dist/* && ./script/deploy.js"
+    "build-node": "babel src -d lib --watch",
+    "deploy": "rm -rf dist/* && ./script/deploy.js",
+    "prepublishOnly": "babel src -d lib && npm run deploy"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +24,7 @@
   "dependencies": {},
   "devDependencies": {
     "ava": "^0.21.0",
+    "babel-cli": "^6.26.0",
     "babel-core": "^6.24.0",
     "babel-eslint": "^7.2.3",
     "babel-loader": "^6.4.1",
