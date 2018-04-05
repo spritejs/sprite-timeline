@@ -1,6 +1,4 @@
 {
   "presets": ["env"],
-  "plugins": ["transform-runtime",
-              "transform-decorators-legacy",
-              "transform-class-properties"]
+  "plugins": ["transform-runtime"]
 }
