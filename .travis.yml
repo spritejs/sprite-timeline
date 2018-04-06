@@ -12,5 +12,5 @@ before_script:
 script:
   - 'npm test'
 after_success:
-  - 'npm install coveralls && ./node_modules/.bin/nyc report --reporter=text-lcov | ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT'
- 
+  - 'cat ./coverage/lcov.info | coveralls'
+  - './cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT'
