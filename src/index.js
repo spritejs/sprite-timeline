@@ -2,7 +2,7 @@ function nowtime() {
   if(typeof performance !== 'undefined' && performance.now) {
     return performance.now()
   } else if(typeof process !== 'undefined' && process.hrtime) {
-    let [s, ns] = process.hrtime()
+    const [s, ns] = process.hrtime()
     return s * 1e3 + ns * 1e-6
   }
   return Date.now ? Date.now() : (new Date()).getTime()
@@ -10,7 +10,7 @@ function nowtime() {
 
 const defaultOptions = {
   originTime: 0,
-  playbackRate: 1.0
+  playbackRate: 1.0,
 }
 
 const _timeMark = Symbol('timeMark'),
@@ -23,14 +23,14 @@ const _timeMark = Symbol('timeMark'),
 
 class Timeline {
   constructor(options, parent) {
-    if(options instanceof Timeline){
+    if(options instanceof Timeline) {
       parent = options
       options = {}
     }
 
     options = Object.assign({}, defaultOptions, options)
-    
-    if(parent){
+
+    if(parent) {
       this[_parent] = parent
     }
 
@@ -47,7 +47,7 @@ class Timeline {
       playbackRate: options.playbackRate,
     }]
 
-    if(this[_parent]){
+    if(this[_parent]) {
       this[_timeMark][0].globalEntropy = this[_parent].entropy
     }
 
@@ -56,8 +56,11 @@ class Timeline {
     this[_timers] = new Map()
     this[_timerID] = 0
   }
+  get lastTimeMark() {
+    return this[_timeMark][this[_timeMark].length - 1]
+  }
   get currentTime() {
-    const {localTime, globalTime} = this[_timeMark][this[_timeMark].length - 1]
+    const {localTime, globalTime} = this.lastTimeMark
     return localTime + (this.globalTime - globalTime) * this.playbackRate
   }
   set currentTime(time) {
@@ -68,7 +71,7 @@ class Timeline {
       playbackRate: this.playbackRate,
     }
 
-    if(this[_parent]){
+    if(this[_parent]) {
       timeMark.globalEntropy = this[_parent].entropy
     }
 
@@ -79,17 +82,17 @@ class Timeline {
   // while the entropy remain to go forwards.
   // Both of the initial values is set to -originTime
   get entropy() {
-    const {globalTime, entropy, globalEntropy} = this[_timeMark][this[_timeMark].length - 1]
-    if(this[_parent]){
+    const {globalTime, entropy, globalEntropy} = this.lastTimeMark
+    if(this[_parent]) {
       return entropy + Math.abs((this[_parent].entropy - globalEntropy) * this.playbackRate)
     }
     return entropy + Math.abs((this.globalTime - globalTime) * this.playbackRate)
   }
   get globalTime() {
-    if(this[_parent]){
+    if(this[_parent]) {
       return this[_parent].currentTime
     }
-    
+
     return nowtime()
   }
   // change entropy will NOT cause currentTime changing but may influence the pass
@@ -106,7 +109,7 @@ class Timeline {
       playbackRate: this.playbackRate,
     })
   }
-  fork(options){
+  fork(options) {
     return new Timeline(options, this)
   }
   seekGlobalTime(seekEntropy) {
@@ -166,18 +169,18 @@ class Timeline {
       this.currentTime = currentTime
       this[_playbackRate] = rate
       // set new playbackRate in new time mark
-      this[_timeMark][this[_timeMark].length - 1].playbackRate = rate
+      this.lastTimeMark.playbackRate = rate
 
       // This should be asynchronous because we may reset playbackRate
       // in the timer handler ?
       if(this[_timers].size) {
-        let timers = [...this[_timers]]
+        const timers = [...this[_timers]]
         timers.forEach(([id, timer]) => {
           this.clearTimeout(id)
 
           const entropy = this.entropy,
             {time, handler, type, active} = timer
-          
+
           let timerID = null
 
           let delay
@@ -189,14 +192,14 @@ class Timeline {
             delay /= this.playbackRate
           }
 
-          if(isFinite(delay)) {
+          if(Number.isFinite(delay)) {
             const parent = this[_parent],
               globalTimeout = parent ? parent.setTimeout.bind(parent) : setTimeout,
               globalInterval = parent ? parent.setInterval.bind(parent) : setInterval
 
             delay = Math.ceil(delay)
-            
-            if(this[_parent]){
+
+            if(this[_parent]) {
               delay = {entropy: delay}
             }
 
@@ -215,7 +218,7 @@ class Timeline {
                 } else {
                   delay = time.time / this.playbackRate
                 }
-                if(this[_timers].has(id)){
+                if(this[_timers].has(id)) {
                   timerID = globalInterval(() => {
                     handler()
                   }, delay)
@@ -231,7 +234,7 @@ class Timeline {
             time,
             currentTime,
             entropy,
-            type
+            type,
           })
         })
       }
@@ -240,7 +243,7 @@ class Timeline {
   clearTimeout(id) {
     const timer = this[_timers].get(id)
     if(timer && timer.timerID != null) {
-      if(this[_parent]){
+      if(this[_parent]) {
         this[_parent].clearTimeout(timer.timerID)
       } else {
         clearTimeout(timer.timerID)
@@ -276,14 +279,14 @@ class Timeline {
       delay = time.time / this.playbackRate
     }
 
-    if(isFinite(delay)) {
+    if(Number.isFinite(delay)) {
       const parent = this[_parent],
         globalTimeout = parent ? parent.setTimeout.bind(parent) : setTimeout,
         globalInterval = parent ? parent.setInterval.bind(parent) : setInterval
 
       delay = Math.ceil(delay)
 
-      if(this[_parent]){
+      if(this[_parent]) {
         delay = {entropy: delay}
       }
 
