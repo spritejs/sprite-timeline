@@ -1,9 +1,17 @@
+env:
+  global:
+    - CC_TEST_REPORTER_ID=31c86e9f3b70d15552a5e20ce2ef41a999f4e4e902d14604cbefd264840bc977
 language: node_js
 node_js:
   - '6'
 sudo: false
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
 script:
   - 'npm test'
 after_success:
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT  
   - 'npm install coveralls && ./node_modules/.bin/nyc report --reporter=text-lcov | ./node_modules/.bin/coveralls'
-  
+ 

@@ -1,6 +1,5 @@
 module.exports = function (env = {}) {
-  const webpack = require('webpack'),
-    path = require('path'),
+  const path = require('path'),
     fs = require('fs'),
     packageConf = JSON.parse(fs.readFileSync('package.json', 'utf-8'))
 
@@ -9,25 +8,25 @@ module.exports = function (env = {}) {
     plugins = [],
     jsLoaders = []
 
-  if(env.production) {
-    // compress js in production environment
+  // if(env.production) {
+  //   // compress js in production environment
 
-    // plugins.push(
-    //   new webpack.optimize.UglifyJsPlugin({
-    //     compress: {
-    //       warnings: false,
-    //       drop_console: false
-    //     }
-    //   })
-    // )
-  }
+  //   plugins.push(
+  //     new webpack.optimize.UglifyJsPlugin({
+  //       compress: {
+  //         warnings: false,
+  //         drop_console: false
+  //       }
+  //     })
+  //   )
+  // }
 
   if(fs.existsSync('./.babelrc')) {
     // use babel
     const babelConf = JSON.parse(fs.readFileSync('.babelrc'))
     jsLoaders.push({
       loader: 'babel-loader',
-      options: babelConf
+      options: babelConf,
     })
   }
 
@@ -38,7 +37,7 @@ module.exports = function (env = {}) {
       path: path.resolve(__dirname, 'dist'),
       publicPath: '/js/',
       library: 'Timeline',
-      libraryTarget: 'umd'
+      libraryTarget: 'umd',
     },
 
     plugins,
@@ -47,15 +46,15 @@ module.exports = function (env = {}) {
       rules: [{
         test: /\.js$/,
         exclude: /(node_modules|bower_components)/,
-        use: jsLoaders
-      }]
+        use: jsLoaders,
+      }],
     },
 
     devServer: {
       proxy: {
-        '*': `http://127.0.0.1:${proxyPort}`
-      }
+        '*': `http://127.0.0.1:${proxyPort}`,
+      },
     },
-    //devtool: 'inline-source-map',
+    // devtool: 'inline-source-map',
   }
 }
