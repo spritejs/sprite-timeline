@@ -3,7 +3,8 @@
 [![npm status](https://img.shields.io/npm/v/sprite-timeline.svg)](https://www.npmjs.org/package/sprite-timeline)
 [![build status](https://api.travis-ci.org/spritejs/sprite-timeline.svg?branch=master)](https://travis-ci.org/spritejs/sprite-timeline) 
 [![dependency status](https://david-dm.org/spritejs/sprite-timeline.svg)](https://david-dm.org/spritejs/sprite-timeline)
-[![coverage status](https://img.shields.io/coveralls/spritejs/sprite-timeline.svg)](https://coveralls.io/github/spritejs/sprite-timeline)
+[![Maintainability](https://api.codeclimate.com/v1/badges/7882da6c1cbac6283ffd/maintainability)](https://codeclimate.com/github/spritejs/sprite-timeline/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/7882da6c1cbac6283ffd/test_coverage)](https://codeclimate.com/github/spritejs/sprite-timeline/test_coverage)
 
 Custom timelines  for manipulate sprite animation.
 
@@ -18,7 +19,7 @@ npm install sprite-timeline
 in browser
 
 ```html
-<script src="https://s4.ssl.qhres.com/!5b6db5e1/sprite-timeline-1.1.3.js"></script>
+<script src="https://s1.ssl.qhres.com/!eedda352/sprite-timeline-1.2.0.js"></script>
 ```
 
 ## Demos
