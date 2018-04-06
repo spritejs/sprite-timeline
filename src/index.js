@@ -1,12 +1,4 @@
-function nowtime() {
-  if(typeof performance !== 'undefined' && performance.now) {
-    return performance.now()
-  } else if(typeof process !== 'undefined' && process.hrtime) {
-    const [s, ns] = process.hrtime()
-    return s * 1e3 + ns * 1e-6
-  }
-  return Date.now ? Date.now() : (new Date()).getTime()
-}
+import {nowtime, formatDelay} from './utils'
 
 const defaultOptions = {
   originTime: 0,
@@ -171,77 +163,15 @@ class Timeline {
       // set new playbackRate in new time mark
       this.lastTimeMark.playbackRate = rate
 
-      // This should be asynchronous because we may reset playbackRate
-      // in the timer handler ?
-      if(this[_timers].size) {
-        const timers = [...this[_timers]]
-        timers.forEach(([id, timer]) => {
-          this.clearTimeout(id)
-
-          const entropy = this.entropy,
-            {time, handler, type, active} = timer
-
-          let timerID = null
-
-          let delay
-          if(time.time == null) {
-            delay = time.entropy - (entropy - timer.entropy)
-            delay /= Math.abs(this.playbackRate)
-          } else {
-            delay = time.time - (currentTime - timer.currentTime)
-            delay /= this.playbackRate
-          }
-
-          if(Number.isFinite(delay)) {
-            const parent = this[_parent],
-              globalTimeout = parent ? parent.setTimeout.bind(parent) : setTimeout,
-              globalInterval = parent ? parent.setInterval.bind(parent) : setInterval
-
-            delay = Math.ceil(delay)
-
-            if(this[_parent]) {
-              delay = {entropy: delay}
-            }
-
-            if(type === 'timeout') {
-              timerID = globalTimeout(() => {
-                this[_timers].delete(id)
-                handler()
-              }, delay)
-            } else if(type === 'interval') {
-              timerID = globalTimeout(() => {
-                if(!active) {
-                  handler()
-                }
-                if(time.time == null) {
-                  delay = time.entropy / Math.abs(this.playbackRate)
-                } else {
-                  delay = time.time / this.playbackRate
-                }
-                if(this[_timers].has(id)) {
-                  timerID = globalInterval(() => {
-                    handler()
-                  }, delay)
-                  this[_timers].get(id).timerID = timerID
-                }
-              }, delay)
-            }
-          }
-
-          this[_timers].set(id, {
-            timerID,
-            handler,
-            time,
-            currentTime,
-            entropy,
-            type,
-          })
-        })
-      }
+      const timers = [...this[_timers]]
+      timers.forEach(([id, timer]) => {
+        this[_setTimer](timer.handler, timer.time, id)
+      })
     }
   }
   clearTimeout(id) {
     const timer = this[_timers].get(id)
+
     if(timer && timer.timerID != null) {
       if(this[_parent]) {
         this[_parent].clearTimeout(timer.timerID)
@@ -254,64 +184,65 @@ class Timeline {
   clearInterval(id) {
     return this.clearTimeout(id)
   }
-  setTimeout(handler, time = {time: 0}) {
-    return this[_setTimer](handler, time, 'timeout')
+  /*
+    setTimeout(func, {delay: 100, isEntropy: true})
+    setTimeout(func, {entropy: 100})
+    setTimeout(func, 100})
+   */
+  setTimeout(handler, time = {delay: 0}) {
+    return this[_setTimer](handler, time)
   }
-  setInterval(handler, time = {time: 0}) {
-    return this[_setTimer](handler, time, 'interval')
+  setInterval(handler, time = {delay: 0}) {
+    const that = this
+    const id = this[_setTimer](function step() {
+      // reset timer before handler cause we may clearTimeout in handler()
+      that[_setTimer](step, time, id)
+      handler()
+    }, time)
+
+    return id
   }
-  [_setTimer](handler, time, type = 'timeout') {
-    if(typeof time === 'number') {
-      time = {time}
-    }
+  [_setTimer](handler, time, id = ++this[_timerID]) {
+    time = formatDelay(time)
 
-    const currentTime = this.currentTime,
-      entropy = this.entropy
+    const timer = this[_timers].get(id)
+    let delay,
+      timerID = null
 
-    const id = ++this[_timerID]
-
-    let timerID = null
-    let delay
-
-    if(time.time == null) { // entropy
-      delay = time.entropy / Math.abs(this.playbackRate)
+    if(timer) {
+      this.clearTimeout(id)
+      if(time.isEntropy) {
+        delay = (time.delay - (this.entropy - timer.startEntropy)) / Math.abs(this.playbackRate)
+      } else {
+        delay = (time.delay - (this.currentTime - timer.startTime)) / this.playbackRate
+      }
     } else {
-      delay = time.time / this.playbackRate
+      delay = time.delay / (time.isEntropy ? Math.abs(this.playbackRate) : this.playbackRate)
     }
 
+    // if playbackRate is zero, delay will be infinity.
     if(Number.isFinite(delay)) {
-      const parent = this[_parent],
-        globalTimeout = parent ? parent.setTimeout.bind(parent) : setTimeout,
-        globalInterval = parent ? parent.setInterval.bind(parent) : setInterval
-
       delay = Math.ceil(delay)
 
-      if(this[_parent]) {
-        delay = {entropy: delay}
+      const parent = this[_parent],
+        globalTimeout = parent ? parent.setTimeout.bind(parent) : setTimeout
+
+      if(parent) {
+        delay = {delay, isEntropy: true}
       }
 
-      if(type === 'timeout') {
-        timerID = globalTimeout(() => {
-          this[_timers].delete(id)
-          handler()
-        }, delay)
-      } else if(type === 'interval') {
-        timerID = globalInterval(() => {
-          const timer = this[_timers].get(id)
-          timer.active = true
-          handler()
-          timer.active = false
-        }, delay)
-      }
+      timerID = globalTimeout(() => {
+        this[_timers].delete(id)
+        handler()
+      }, delay)
     }
 
     this[_timers].set(id, {
       timerID,
       handler,
       time,
-      currentTime,
-      entropy,
-      type,
+      startTime: this.currentTime,
+      startEntropy: this.entropy,
     })
 
     return id

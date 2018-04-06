@@ -290,7 +290,7 @@ test.cb('timeline setTimeout time', _caseSync(t => {
 
     t.truthy(t.time_compare(timeline.currentTime, passedTime * -2))
     t.end()
-  }, {time: -100})
+  }, {delay: -100})
 }))
 
 test.cb('timeline setTimeout time 2', _caseSync(t => {
@@ -306,7 +306,7 @@ test.cb('timeline setTimeout time 2', _caseSync(t => {
 
     t.truthy(t.time_compare(timeline.currentTime, (passedTime - idleTime) * -2))
     t.end()
-  }, {time: -100})
+  }, {delay: -100})
 
   let n = timeline.globalTime, idleTime = 0
   setTimeout(() => {
