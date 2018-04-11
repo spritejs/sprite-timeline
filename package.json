@@ -1,6 +1,6 @@
 {
   "name": "sprite-timeline",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Custom timelines  for manipulate sprite animation.",
   "main": "lib/index.js",
   "directories": {
