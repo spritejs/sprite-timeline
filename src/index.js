@@ -238,9 +238,9 @@ class Timeline {
       const parent = this[_parent],
         globalTimeout = parent ? parent.setTimeout.bind(parent) : setTimeout
 
-      if(parent) {
-        delay = {delay, isEntropy: true}
-      }
+      // if(parent) {
+      //   delay = {delay, isEntropy: true}
+      // }
 
       timerID = globalTimeout(() => {
         this[_timers].delete(id)
