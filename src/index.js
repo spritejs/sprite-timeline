@@ -37,6 +37,7 @@ class Timeline {
       localTime: -options.originTime,
       entropy: -options.originTime,
       playbackRate: options.playbackRate,
+      globalEntropy: 0,
     }]
 
     if(this[_parent]) {
@@ -62,11 +63,9 @@ class Timeline {
       entropy: this.entropy,
       playbackRate: this.playbackRate,
     }
-
     if(this[_parent]) {
       timeMark.globalEntropy = this[_parent].entropy
     }
-
     this[_timeMark].push(timeMark)
   }
   // Both currentTime and entropy should be influenced by playbackRate.
@@ -93,13 +92,16 @@ class Timeline {
   set entropy(entropy) {
     const idx = this.seekTimeMark(entropy)
     this[_timeMark].length = idx + 1
-
-    this[_timeMark].push({
+    const timeMark = {
       globalTime: this.globalTime,
       localTime: this.currentTime,
       entropy,
       playbackRate: this.playbackRate,
-    })
+    }
+    if(this[_parent]) {
+      timeMark.globalEntropy = this[_parent].entropy
+    }
+    this[_timeMark].push(timeMark)
   }
   fork(options) {
     return new Timeline(options, this)
