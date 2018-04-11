@@ -207,17 +207,26 @@ class Timeline {
 
     const timer = this[_timers].get(id)
     let delay,
-      timerID = null
+      timerID = null,
+      startTime,
+      startEntropy
 
     if(timer) {
       this.clearTimeout(id)
       if(time.isEntropy) {
         delay = (time.delay - (this.entropy - timer.startEntropy)) / Math.abs(this.playbackRate)
-      } else {
+      } else if(this.playbackRate >= 0) {
         delay = (time.delay - (this.currentTime - timer.startTime)) / this.playbackRate
+      } else {
+        // playbackRate < 0, back to startPoint
+        delay = (timer.startTime - this.currentTime) / this.playbackRate
       }
+      startTime = timer.startTime
+      startEntropy = timer.startEntropy
     } else {
       delay = time.delay / (time.isEntropy ? Math.abs(this.playbackRate) : this.playbackRate)
+      startTime = this.currentTime
+      startEntropy = this.entropy
     }
 
     // if playbackRate is zero, delay will be infinity.
@@ -241,8 +250,8 @@ class Timeline {
       timerID,
       handler,
       time,
-      startTime: this.currentTime,
-      startEntropy: this.entropy,
+      startTime,
+      startEntropy,
     })
 
     return id

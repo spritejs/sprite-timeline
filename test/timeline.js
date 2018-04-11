@@ -454,6 +454,21 @@ test.cb('timeline setTimeout playbackRate', _caseSync(t => {
   }, 1000)
 }))
 
+test.cb('timeline setTimeout playbackRate reverse', _caseSync(t => {
+  const timeline = new Timeline()
+  const now = timeline.globalTime
+
+  timeline.setTimeout(() => {
+    t.truthy(t.time_compare(timeline.globalTime - now, 300))
+    t.truthy(t.time_compare(timeline.currentTime, 0))
+    t.end()
+  }, 500)
+  
+  setTimeout(() => {
+    timeline.playbackRate = -2
+  }, 200)  
+}))
+
 test('timeline fork', _case(async t => {
   const timeline = new Timeline({playbackRate: 2}),
         timeline2 = timeline.fork({playbackRate: 3})
