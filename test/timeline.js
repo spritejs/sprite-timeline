@@ -335,6 +335,28 @@ test.cb('timeline setInterval & clearInterval', _caseSync(t => {
   }, 100)
 }))
 
+test.cb('timeline clear', _caseSync(t => {
+  t.plan(4)
+  let i = 0, j = 0
+  const timeline = new Timeline()
+  timeline.setInterval(() => {
+    i++
+  }, 200)
+  timeline.setInterval(() => {
+    j++
+  }, 300)
+  setTimeout(() => {
+    timeline.clear()
+    t.is(i, 2)
+    t.is(j, 1)
+  }, 500)
+  setTimeout(() => {
+    t.is(i, 2)
+    t.is(j, 1)
+    t.end()    
+  }, 1000)
+}))
+
 test.cb('timeline setInterval & clearInterval 2', _caseSync(t => {
   t.plan(2)
   const timeline = new Timeline({playbackRate: -2})

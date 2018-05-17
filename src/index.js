@@ -186,6 +186,13 @@ class Timeline {
   clearInterval(id) {
     return this.clearTimeout(id)
   }
+  clear() {
+    // clear all running timers
+    const timers = this[_timers]
+    ;[...timers.keys()].forEach((id) => {
+      this.clearTimeout(id)
+    })
+  }
   /*
     setTimeout(func, {delay: 100, isEntropy: true})
     setTimeout(func, {entropy: 100})
