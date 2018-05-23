@@ -16,9 +16,9 @@
     const timeline = new Timeline({playbackRate: 1})
 
     let i = 0
-    // const timerID = timeline.setAlarm(-5000, function(){
-    //   console.log(111)
-    // })
+    const timerID = timeline.setAlarm(-1000, function(){
+      console.log(111)
+    })
     requestAnimationFrame(function f() {
       time.innerHTML = timeline.currentTime
       requestAnimationFrame(f)

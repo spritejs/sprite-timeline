@@ -234,12 +234,11 @@ class Timeline {
   updateAlarms() {
     const alarms = this[_alarms]
     ;[...alarms.entries()].forEach(([id, {time, handler}]) => {
-      if(!this[_timers].has(id)) {
-        this[_setAlarm](time, handler, id)
-        if(handler[_heading] && this.playbackRate * (time - this.currentTime) < 0 && !this.paused) {
-          handler()
-          delete handler[_heading]
-        }
+      this.clearAlarm(id)
+      this[_setAlarm](time, handler, id)
+      if(handler[_heading] && this.playbackRate * (time - this.currentTime) < 0 && !this.paused) {
+        handler()
+        delete handler[_heading]
       }
     })
   }
@@ -247,10 +246,10 @@ class Timeline {
     if(this.playbackRate !== 0) {
       const delay = (time - this.currentTime) / this.playbackRate
       if(delay > 0 && Number.isFinite(delay)) {
-        this[_setTimer](handler, {delay, isEntropy: true}, id)
+        this[_setTimer](handler, {delay: this.playbackRate > 0 ? delay : -delay}, id)
       }
       if(delay === 0) {
-        this[_setTimer](handler, {delay: 0.001, isEntropy: true}, id)
+        this[_setTimer](handler, {delay: this.playbackRate > 0 ? 0.001 : -0.001}, id)
       }
     }
     this[_alarms].set(id, {time, handler})
