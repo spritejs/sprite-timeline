@@ -11,6 +11,7 @@ const _timeMark = Symbol('timeMark'),
   _alarms = Symbol('alarms'),
   _originTime = Symbol('originTime'),
   _setTimer = Symbol('setTimer'),
+  _setAlarm = Symbol('setAlarm'),
   _parent = Symbol('parent')
 
 class Timeline {
@@ -221,11 +222,11 @@ class Timeline {
     const alarms = this[_alarms]
     ;[...alarms.entries()].forEach(([id, {time, handler}]) => {
       if(!this[_timers].has(id)) {
-        this.setAlarm(time, handler, id)
+        this[_setAlarm](time, handler, id)
       }
     })
   }
-  setAlarm(time, handler, id = Symbol('alarm')) {
+  [_setAlarm](time, handler, id = Symbol('alarm')) {
     if(this.playbackRate !== 0) {
       const delay = (time - this.currentTime) / this.playbackRate
       if(delay > 0) {
@@ -234,6 +235,12 @@ class Timeline {
     }
     this[_alarms].set(id, {time, handler})
     return id
+  }
+  setAlarm(time, handler, heading = true) {
+    if(heading && this.playbackRate * (time - this.currentTime) < 0) {
+      handler()
+    }
+    return this[_setAlarm](time, handler)
   }
   clearAlarm(id) {
     if(this[_timers].has(id)) {
