@@ -249,6 +249,9 @@ class Timeline {
       if(delay > 0 && Number.isFinite(delay)) {
         this[_setTimer](handler, {delay, isEntropy: true}, id)
       }
+      if(delay === 0) {
+        this[_setTimer](handler, {delay: 0.001, isEntropy: true}, id)
+      }
     }
     this[_alarms].set(id, {time, handler})
     return id

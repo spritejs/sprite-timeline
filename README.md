@@ -19,7 +19,7 @@ npm install sprite-timeline
 in browser
 
 ```html
-<script src="https://s0.ssl.qhres.com/!1af9f224/sprite-timeline-1.5.1.js"></script>
+<script src="https://s1.ssl.qhres.com/!d85ce6e6/sprite-timeline-1.5.2.js"></script>
 ```
 
 ## Demos
