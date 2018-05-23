@@ -229,7 +229,7 @@ class Timeline {
   [_setAlarm](time, handler, id = Symbol('alarm')) {
     if(this.playbackRate !== 0) {
       const delay = (time - this.currentTime) / this.playbackRate
-      if(delay > 0) {
+      if(delay > 0 && Number.isFinite(delay)) {
         this[_setTimer](handler, {delay, isEntropy: true}, id)
       }
     }
