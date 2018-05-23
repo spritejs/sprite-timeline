@@ -50,6 +50,9 @@ class Timeline {
     this[_timers] = new Map()
     this[_alarms] = new Map()
   }
+  get parent() {
+    return this[_parent]
+  }
   get lastTimeMark() {
     return this[_timeMark][this[_timeMark].length - 1]
   }
