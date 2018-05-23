@@ -8,8 +8,8 @@ const defaultOptions = {
 const _timeMark = Symbol('timeMark'),
   _playbackRate = Symbol('playbackRate'),
   _timers = Symbol('timers'),
+  _alarms = Symbol('alarms'),
   _originTime = Symbol('originTime'),
-  _timerID = Symbol('timerID'),
   _setTimer = Symbol('setTimer'),
   _parent = Symbol('parent')
 
@@ -47,7 +47,7 @@ class Timeline {
     this[_originTime] = options.originTime
     this[_playbackRate] = options.playbackRate
     this[_timers] = new Map()
-    this[_timerID] = 0
+    this[_alarms] = new Map()
   }
   get lastTimeMark() {
     return this[_timeMark][this[_timeMark].length - 1]
@@ -169,6 +169,8 @@ class Timeline {
       timers.forEach(([id, timer]) => {
         this[_setTimer](timer.handler, timer.time, id)
       })
+
+      this.updateAlarms()
     }
   }
   clearTimeout(id) {
@@ -187,7 +189,11 @@ class Timeline {
     return this.clearTimeout(id)
   }
   clear() {
-    // clear all running timers
+    // clear all running timers & alarms
+    const alarms = this[_alarms]
+    ;[...alarms.keys()].forEach((id) => {
+      this.clearAlarm(id)
+    })
     const timers = this[_timers]
     ;[...timers.keys()].forEach((id) => {
       this.clearTimeout(id)
@@ -211,7 +217,31 @@ class Timeline {
 
     return id
   }
-  [_setTimer](handler, time, id = ++this[_timerID]) {
+  updateAlarms() {
+    const alarms = this[_alarms]
+    ;[...alarms.entries()].forEach(([id, {time, handler}]) => {
+      if(!this[_timers].has(id)) {
+        this.setAlarm(time, handler, id)
+      }
+    })
+  }
+  setAlarm(time, handler, id = Symbol('alarm')) {
+    if(this.playbackRate !== 0) {
+      const delay = (time - this.currentTime) / this.playbackRate
+      if(delay > 0) {
+        this[_setTimer](handler, {delay, isEntropy: true}, id)
+      }
+    }
+    this[_alarms].set(id, {time, handler})
+    return id
+  }
+  clearAlarm(id) {
+    if(this[_timers].has(id)) {
+      this.clearTimeout(id)
+    }
+    this[_alarms].delete(id)
+  }
+  [_setTimer](handler, time, id = Symbol('timerID')) {
     time = formatDelay(time)
 
     const timer = this[_timers].get(id)

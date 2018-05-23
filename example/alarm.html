@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+  <title>Demo</title>
+</head>
+<body>
+  <script src="/js/index.js"></script>
+  <button id="reverse">reverse</button>
+  <button id="clear">clear</button>
+  <div>currentTime: <span id="time"></span></div>
+  <script>
+    const timeline = new Timeline({playbackRate: -1})
+
+    let i = 0
+    const timerID = timeline.setAlarm(-1000, function(){
+      console.log(111)
+    })
+    requestAnimationFrame(function f() {
+      time.innerHTML = timeline.currentTime
+      requestAnimationFrame(f)
+    })
+    reverse.addEventListener('click', () => {
+      timeline.playbackRate = -timeline.playbackRate
+      // timeline.updateAlarms()
+    })
+    clear.addEventListener('click', () => {
+      timeline.clearAlarm(timerID)
+    })
+  </script>
+</body>
+</html>
