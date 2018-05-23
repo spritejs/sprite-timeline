@@ -178,6 +178,15 @@ class Timeline {
       this.updateAlarms()
     }
   }
+  get paused() {
+    if(this.playbackRate === 0) return true
+    let parent = this.parent
+    while(parent) {
+      if(parent.playbackRate === 0) return true
+      parent = parent.parent
+    }
+    return false
+  }
   clearTimeout(id) {
     const timer = this[_timers].get(id)
 
@@ -227,8 +236,9 @@ class Timeline {
     ;[...alarms.entries()].forEach(([id, {time, handler}]) => {
       if(!this[_timers].has(id)) {
         this[_setAlarm](time, handler, id)
-        if(handler[_heading] && this.playbackRate * (time - this.currentTime) < 0) {
+        if(handler[_heading] && this.playbackRate * (time - this.currentTime) < 0 && !this.paused) {
           handler()
+          delete handler[_heading]
         }
       }
     })
@@ -246,9 +256,9 @@ class Timeline {
   setAlarm(time, handler, heading = true) {
     handler[_heading] = heading
     const id = this[_setAlarm](time, handler)
-    if(heading && this.playbackRate * (time - this.currentTime) < 0) {
+    if(heading && this.playbackRate * (time - this.currentTime) < 0 && !this.paused) {
       handler()
-      handler[_heading] = false
+      delete handler[_heading]
     }
     return id
   }
