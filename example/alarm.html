@@ -9,14 +9,16 @@
   <script src="/js/index.js"></script>
   <button id="reverse">reverse</button>
   <button id="clear">clear</button>
+  <button id="pause">pause</button>
+  <button id="resume">resume</button>
   <div>currentTime: <span id="time"></span></div>
   <script>
     const timeline = new Timeline({playbackRate: 1})
 
     let i = 0
-    const timerID = timeline.setAlarm(-5000, function(){
-      console.log(111)
-    })
+    // const timerID = timeline.setAlarm(-5000, function(){
+    //   console.log(111)
+    // })
     requestAnimationFrame(function f() {
       time.innerHTML = timeline.currentTime
       requestAnimationFrame(f)
@@ -27,6 +29,18 @@
     })
     clear.addEventListener('click', () => {
       timeline.clearAlarm(timerID)
+    })
+    let playbackRate
+    pause.addEventListener('click', () => {
+      playbackRate = timeline.playbackRate
+      timeline.playbackRate = 0
+      const id = timeline.setAlarm(timeline.currentTime, () => {
+        console.log(222)
+        timeline.clearAlarm(id)
+      })
+    })
+    resume.addEventListener('click', () => {
+      timeline.playbackRate = playbackRate
     })
   </script>
 </body>
