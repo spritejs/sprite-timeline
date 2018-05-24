@@ -8,11 +8,8 @@ const defaultOptions = {
 const _timeMark = Symbol('timeMark'),
   _playbackRate = Symbol('playbackRate'),
   _timers = Symbol('timers'),
-  _alarms = Symbol('alarms'),
   _originTime = Symbol('originTime'),
   _setTimer = Symbol('setTimer'),
-  _setAlarm = Symbol('setAlarm'),
-  _heading = Symbol('heading'),
   _parent = Symbol('parent')
 
 class Timeline {
@@ -49,7 +46,6 @@ class Timeline {
     this[_originTime] = options.originTime
     this[_playbackRate] = options.playbackRate
     this[_timers] = new Map()
-    this[_alarms] = new Map()
   }
   get parent() {
     return this[_parent]
@@ -174,8 +170,6 @@ class Timeline {
       timers.forEach(([id, timer]) => {
         this[_setTimer](timer.handler, timer.time, id)
       })
-
-      this.updateAlarms()
     }
   }
   get paused() {
@@ -203,11 +197,7 @@ class Timeline {
     return this.clearTimeout(id)
   }
   clear() {
-    // clear all running timers & alarms
-    const alarms = this[_alarms]
-    ;[...alarms.keys()].forEach((id) => {
-      this.clearAlarm(id)
-    })
+    // clear all running timers
     const timers = this[_timers]
     ;[...timers.keys()].forEach((id) => {
       this.clearTimeout(id)
@@ -231,45 +221,6 @@ class Timeline {
 
     return id
   }
-  updateAlarms() {
-    const alarms = this[_alarms]
-    ;[...alarms.entries()].forEach(([id, {time, handler}]) => {
-      this.clearAlarm(id)
-      this[_setAlarm](time, handler, id)
-      if(handler[_heading] && this.playbackRate * (time - this.currentTime) < 0 && !this.paused) {
-        handler()
-        delete handler[_heading]
-      }
-    })
-  }
-  [_setAlarm](time, handler, id = Symbol('alarm')) {
-    if(this.playbackRate !== 0) {
-      const delay = (time - this.currentTime) / this.playbackRate
-      if(delay > 0 && Number.isFinite(delay)) {
-        this[_setTimer](handler, {delay: this.playbackRate > 0 ? delay : -delay}, id)
-      }
-      if(delay === 0) {
-        this[_setTimer](handler, {delay: this.playbackRate > 0 ? 0.001 : -0.001}, id)
-      }
-    }
-    this[_alarms].set(id, {time, handler})
-    return id
-  }
-  setAlarm(time, handler, heading = true) {
-    handler[_heading] = heading
-    const id = this[_setAlarm](time, handler)
-    if(heading && this.playbackRate * (time - this.currentTime) < 0 && !this.paused) {
-      handler()
-      delete handler[_heading]
-    }
-    return id
-  }
-  clearAlarm(id) {
-    if(this[_timers].has(id)) {
-      this.clearTimeout(id)
-    }
-    this[_alarms].delete(id)
-  }
   [_setTimer](handler, time, id = Symbol('timerID')) {
     time = formatDelay(time)
 
@@ -283,11 +234,8 @@ class Timeline {
       this.clearTimeout(id)
       if(time.isEntropy) {
         delay = (time.delay - (this.entropy - timer.startEntropy)) / Math.abs(this.playbackRate)
-      } else if(this.playbackRate >= 0) {
-        delay = (time.delay - (this.currentTime - timer.startTime)) / this.playbackRate
       } else {
-        // playbackRate < 0, back to startPoint
-        delay = (timer.startTime - this.currentTime) / this.playbackRate
+        delay = (time.delay - (this.currentTime - timer.startTime)) / this.playbackRate
       }
       startTime = timer.startTime
       startEntropy = timer.startEntropy
@@ -297,17 +245,21 @@ class Timeline {
       startEntropy = this.entropy
     }
 
+    const parent = this[_parent],
+      globalTimeout = parent ? parent.setTimeout.bind(parent) : setTimeout
+
+    const heading = time.heading
+    // console.log(heading, parent, delay)
+    if(!parent && heading === false && delay < 0) {
+      delay = Infinity
+    }
+
     // if playbackRate is zero, delay will be infinity.
-    if(Number.isFinite(delay)) {
+    if(Number.isFinite(delay) || parent) {
       delay = Math.ceil(delay)
-
-      const parent = this[_parent],
-        globalTimeout = parent ? parent.setTimeout.bind(parent) : setTimeout
-
-      // if(parent) {
-      //   delay = {delay, isEntropy: true}
-      // }
-
+      if(globalTimeout !== setTimeout) {
+        delay = {delay, heading}
+      }
       timerID = globalTimeout(() => {
         this[_timers].delete(id)
         handler()

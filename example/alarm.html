@@ -12,36 +12,43 @@
   <button id="pause">pause</button>
   <button id="resume">resume</button>
   <div>currentTime: <span id="time"></span></div>
+  <div>baseTime: <span id="basetime"></span></div>
   <script>
-    const timeline = new Timeline({playbackRate: 1})
+    const baseTimeline = new Timeline({playbackRate: 0.5})
+    const timeline = new Timeline({playbackRate: 2}, baseTimeline)
 
-    let i = 0
-    const timerID = timeline.setAlarm(-1000, function(){
-      console.log(111)
-    })
+    timeline.setTimeout(() => {
+      console.log('ok')
+    }, {delay: -2000, heading: false})
+
+    // const timerID = timeline.setAlarm(-2000, function(){
+    //   console.log(111)
+    // })
     requestAnimationFrame(function f() {
       time.innerHTML = timeline.currentTime
+      basetime.innerHTML = baseTimeline.currentTime
       requestAnimationFrame(f)
     })
     reverse.addEventListener('click', () => {
-      timeline.playbackRate = -timeline.playbackRate
+      baseTimeline.playbackRate = -baseTimeline.playbackRate
+      // timeline.playbackRate = -timeline.playbackRate
       // timeline.updateAlarms()
     })
-    clear.addEventListener('click', () => {
-      timeline.clearAlarm(timerID)
-    })
-    let playbackRate
-    pause.addEventListener('click', () => {
-      playbackRate = timeline.playbackRate
-      timeline.playbackRate = 0
-      const id = timeline.setAlarm(timeline.currentTime, () => {
-        console.log(222)
-        timeline.clearAlarm(id)
-      })
-    })
-    resume.addEventListener('click', () => {
-      timeline.playbackRate = playbackRate
-    })
+    // clear.addEventListener('click', () => {
+    //   timeline.clearAlarm(timerID)
+    // })
+    // let playbackRate
+    // pause.addEventListener('click', () => {
+    //   playbackRate = timeline.playbackRate
+    //   timeline.playbackRate = 0
+    //   const id = timeline.setAlarm(timeline.currentTime, () => {
+    //     console.log(222)
+    //     timeline.clearAlarm(id)
+    //   })
+    // })
+    // resume.addEventListener('click', () => {
+    //   timeline.playbackRate = playbackRate
+    // })
   </script>
 </body>
 </html>
