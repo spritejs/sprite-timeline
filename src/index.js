@@ -255,7 +255,8 @@ class Timeline {
     }
 
     // if playbackRate is zero, delay will be infinity.
-    if(Number.isFinite(delay) || parent) {
+    // For wxapp bugs, cannot use Number.isFinite yet.
+    if(isFinite(delay) || parent) { // eslint-disable-line no-restricted-globals
       delay = Math.ceil(delay)
       if(globalTimeout !== setTimeout) {
         delay = {delay, heading}
