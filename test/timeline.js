@@ -476,19 +476,22 @@ test.cb('timeline setTimeout playbackRate', _caseSync(t => {
   }, 1000)
 }))
 
-test.cb('timeline setTimeout playbackRate reverse', _caseSync(t => {
+test.cb('timeline setTimeout heading', _caseSync(t => {
   const timeline = new Timeline()
   const now = timeline.globalTime
 
   timeline.setTimeout(() => {
-    t.truthy(t.time_compare(timeline.globalTime - now, 300))
-    t.truthy(t.time_compare(timeline.currentTime, 0))
+    t.truthy(t.time_compare(timeline.globalTime - now, 550))
+    t.truthy(t.time_compare(timeline.currentTime, 500))
     t.end()
-  }, 500)
+  }, {delay: 500, heading: false})
   
   setTimeout(() => {
     timeline.playbackRate = -2
-  }, 200)  
+    setTimeout(() => {
+      timeline.playbackRate = 2
+    }, 100) 
+  }, 200)
 }))
 
 test('timeline fork', _case(async t => {
