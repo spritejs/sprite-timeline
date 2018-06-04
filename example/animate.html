@@ -41,6 +41,11 @@
   <script>
     const T = 2000
     let timeline
+    const ball = document.getElementById('ball'),
+      speedUp = document.getElementById('speedUp'),
+      slowDown = document.getElementById('slowDown'),
+      reverse = document.getElementById('reverse'),
+      pause = document.getElementById('pause')
 
     requestAnimationFrame(function update() {
       if(!timeline) timeline = new Timeline()
@@ -49,19 +54,19 @@
       requestAnimationFrame(update)
     })
 
-    speedUp.onclick = function(){
+    speedUp.onclick = function () {
       if(timeline) timeline.playbackRate += 0.2
     }
 
-    slowDown.onclick = function(){
+    slowDown.onclick = function () {
       if(timeline) timeline.playbackRate -= 0.2
     }
 
-    reverse.onclick = function(){
+    reverse.onclick = function () {
       if(timeline) timeline.playbackRate = -timeline.playbackRate
     }
 
-    pause.onclick = function(){
+    pause.onclick = function () {
       if(timeline) timeline.playbackRate = 0
     }
   </script>

@@ -1,6 +1,6 @@
 {
   "name": "sprite-timeline",
-  "version": "1.6.1",
+  "version": "1.7.0",
   "description": "Custom timelines  for manipulate sprite animation.",
   "main": "lib/index.js",
   "directories": {
@@ -37,6 +37,7 @@
     "coveralls": "^3.0.1",
     "eslint": "^4.19.1",
     "eslint-config-75team": "^1.0.22",
+    "eslint-plugin-html": "^4.0.3",
     "http-server": "^0.11.1",
     "nyc": "^11.1.0",
     "webpack": "^2.3.3",

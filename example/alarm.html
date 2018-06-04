@@ -17,13 +17,10 @@
     const baseTimeline = new Timeline({playbackRate: 0.5})
     const timeline = new Timeline({playbackRate: 2}, baseTimeline)
 
-    timeline.setTimeout(() => {
-      console.log('ok')
+    const timerID = timeline.setTimeout(() => {
+      console.log('finished')
     }, {delay: -2000, heading: false})
 
-    // const timerID = timeline.setAlarm(-2000, function(){
-    //   console.log(111)
-    // })
     requestAnimationFrame(function f() {
       time.innerHTML = timeline.currentTime
       basetime.innerHTML = baseTimeline.currentTime
@@ -31,24 +28,22 @@
     })
     reverse.addEventListener('click', () => {
       baseTimeline.playbackRate = -baseTimeline.playbackRate
-      // timeline.playbackRate = -timeline.playbackRate
-      // timeline.updateAlarms()
     })
-    // clear.addEventListener('click', () => {
-    //   timeline.clearAlarm(timerID)
-    // })
-    // let playbackRate
-    // pause.addEventListener('click', () => {
-    //   playbackRate = timeline.playbackRate
-    //   timeline.playbackRate = 0
-    //   const id = timeline.setAlarm(timeline.currentTime, () => {
-    //     console.log(222)
-    //     timeline.clearAlarm(id)
-    //   })
-    // })
-    // resume.addEventListener('click', () => {
-    //   timeline.playbackRate = playbackRate
-    // })
+
+    clear.addEventListener('click', () => {
+      timeline.clearAlarm(timerID)
+    })
+    let playbackRate
+    pause.addEventListener('click', () => {
+      playbackRate = timeline.playbackRate
+      timeline.playbackRate = 0
+      const id = timeline.setTimeout(() => {
+        console.log('resumed')
+      }, {delay: 0, heading: true})
+    })
+    resume.addEventListener('click', () => {
+      timeline.playbackRate = playbackRate
+    })
   </script>
 </body>
 </html>

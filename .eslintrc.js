@@ -1,5 +1,9 @@
 module.exports = {
-  extends: "eslint-config-75team",
+  extends: 'eslint-config-75team',
+  plugins: ['html'],
+  globals: {
+    Timeline: true,
+  },
   rules: {
     // 'import/no-mutable-exports': 'off',
     'semi-style': ["error", "first"],

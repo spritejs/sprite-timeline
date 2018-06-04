@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+  <title>Demo</title>
+</head>
+<body>
+  <script src="/js/index.js"></script>
+  <script>
+    const timeline = new Timeline({playbackRate: 0})
+    const timerID = timeline.setTimeout(function(){
+      console.log('done')
+    }, {delay: 0})
+    timeline.playbackRate = 0.0000001
+    setTimeout(() => {
+      timeline.playbackRate = 0
+    })
+  </script>
+</body>
+</html>

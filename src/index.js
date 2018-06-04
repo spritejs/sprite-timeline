@@ -10,7 +10,8 @@ const _timeMark = Symbol('timeMark'),
   _timers = Symbol('timers'),
   _originTime = Symbol('originTime'),
   _setTimer = Symbol('setTimer'),
-  _parent = Symbol('parent')
+  _parent = Symbol('parent'),
+  _createTime = Symbol('createTime')
 
 class Timeline {
   constructor(options, parent) {
@@ -39,6 +40,8 @@ class Timeline {
       globalEntropy: 0,
     }]
 
+    this[_createTime] = nowtime()
+
     if(this[_parent]) {
       this[_timeMark][0].globalEntropy = this[_parent].entropy
     }
@@ -57,28 +60,30 @@ class Timeline {
     const {localTime, globalTime} = this.lastTimeMark
     return localTime + (this.globalTime - globalTime) * this.playbackRate
   }
-  set currentTime(time) {
+  markTime({time = this.currentTime, entropy = this.entropy, playbackRate = this.playbackRate} = {}) {
     const timeMark = {
       globalTime: this.globalTime,
       localTime: time,
-      entropy: this.entropy,
-      playbackRate: this.playbackRate,
-    }
-    if(this[_parent]) {
-      timeMark.globalEntropy = this[_parent].entropy
+      entropy,
+      playbackRate,
+      globalEntropy: this.globalEntropy,
     }
     this[_timeMark].push(timeMark)
+  }
+  set currentTime(time) {
+    this.markTime({time})
+    this.updateTimers()
   }
   // Both currentTime and entropy should be influenced by playbackRate.
   // If current playbackRate is negative, the currentTime should go backwards
   // while the entropy remain to go forwards.
   // Both of the initial values is set to -originTime
   get entropy() {
-    const {globalTime, entropy, globalEntropy} = this.lastTimeMark
-    if(this[_parent]) {
-      return entropy + Math.abs((this[_parent].entropy - globalEntropy) * this.playbackRate)
-    }
-    return entropy + Math.abs((this.globalTime - globalTime) * this.playbackRate)
+    const {entropy, globalEntropy} = this.lastTimeMark
+    return entropy + Math.abs((this.globalEntropy - globalEntropy) * this.playbackRate)
+  }
+  get globalEntropy() {
+    return this[_parent] ? this[_parent].entropy : nowtime() - this[_createTime]
   }
   get globalTime() {
     if(this[_parent]) {
@@ -93,16 +98,7 @@ class Timeline {
   set entropy(entropy) {
     const idx = this.seekTimeMark(entropy)
     this[_timeMark].length = idx + 1
-    const timeMark = {
-      globalTime: this.globalTime,
-      localTime: this.currentTime,
-      entropy,
-      playbackRate: this.playbackRate,
-    }
-    if(this[_parent]) {
-      timeMark.globalEntropy = this[_parent].entropy
-    }
-    this[_timeMark].push(timeMark)
+    this.markTime({entropy})
   }
   fork(options) {
     return new Timeline(options, this)
@@ -159,17 +155,9 @@ class Timeline {
   }
   set playbackRate(rate) {
     if(rate !== this.playbackRate) {
-      const currentTime = this.currentTime
-      // force currentTime updating
-      this.currentTime = currentTime
+      this.markTime({playbackRate: rate})
       this[_playbackRate] = rate
-      // set new playbackRate in new time mark
-      this.lastTimeMark.playbackRate = rate
-
-      const timers = [...this[_timers]]
-      timers.forEach(([id, timer]) => {
-        this[_setTimer](timer.handler, timer.time, id)
-      })
+      this.updateTimers()
     }
   }
   get paused() {
@@ -180,6 +168,12 @@ class Timeline {
       parent = parent.parent
     }
     return false
+  }
+  updateTimers() {
+    const timers = [...this[_timers]]
+    timers.forEach(([id, timer]) => {
+      this[_setTimer](timer.handler, timer.time, id)
+    })
   }
   clearTimeout(id) {
     const timer = this[_timers].get(id)
