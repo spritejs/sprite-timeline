@@ -56,10 +56,6 @@ class Timeline {
   get lastTimeMark() {
     return this[_timeMark][this[_timeMark].length - 1]
   }
-  get currentTime() {
-    const {localTime, globalTime} = this.lastTimeMark
-    return localTime + (this.globalTime - globalTime) * this.playbackRate
-  }
   markTime({time = this.currentTime, entropy = this.entropy, playbackRate = this.playbackRate} = {}) {
     const timeMark = {
       globalTime: this.globalTime,
@@ -70,9 +66,38 @@ class Timeline {
     }
     this[_timeMark].push(timeMark)
   }
+  get currentTime() {
+    const {localTime, globalTime} = this.lastTimeMark
+    return localTime + (this.globalTime - globalTime) * this.playbackRate
+  }
   set currentTime(time) {
     this.markTime({time})
     this.updateTimers()
+  }
+  passTo(time, entropy) {
+    const from = this.currentTime,
+      to = time,
+      timers = this[_timers]
+
+    ;[...timers].forEach(([id, timer]) => {
+      const {isEntropy, delay, heading} = timer.time,
+        {handler, startTime} = timer
+
+      if(!isEntropy) {
+        const endTime = startTime + delay
+        if(delay === 0
+          || heading !== false && (to - from) * delay < 0
+          || from < endTime && endTime < to
+          || from > endTime && endTime > to) {
+          setTimeout(handler)
+          timers.delete(id)
+        }
+      } else if(delay === 0) {
+        setTimeout(handler)
+        timers.delete(id)
+      }
+    })
+    this.currentTime = to
   }
   // Both currentTime and entropy should be influenced by playbackRate.
   // If current playbackRate is negative, the currentTime should go backwards
@@ -96,9 +121,12 @@ class Timeline {
   // and the future of the timeline. (It may change the result of seek***Time)
   // While entropy is set, all the marks behind will be droped
   set entropy(entropy) {
-    const idx = this.seekTimeMark(entropy)
-    this[_timeMark].length = idx + 1
+    if(this.entropy > entropy) {
+      const idx = this.seekTimeMark(entropy)
+      this[_timeMark].length = idx + 1
+    }
     this.markTime({entropy})
+    this.updateTimers()
   }
   fork(options) {
     return new Timeline(options, this)

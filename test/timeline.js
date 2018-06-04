@@ -527,3 +527,15 @@ test.cb('timeline fork setInterval & clearInterval', _caseSync(t => {
   
   timeline.playbackRate = 2
 }))
+
+test.cb('timeline passTo', _caseSync(t => {
+  const timeline = new Timeline({playbackRate: 0})
+
+  t.plan(1)
+  timeline.setTimeout(evt => {
+    t.truthy(t.time_compare(timeline.currentTime, 1000))
+    t.end()
+  }, 500)
+
+  timeline.passTo(1000)
+}))

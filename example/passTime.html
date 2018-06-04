@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+  <title>Demo</title>
+</head>
+<body>
+  <script src="/js/index.js"></script>
+  <script>
+    const timeline = new Timeline({playbackRate: 0})
+    timeline.setTimeout(function(){
+      console.log(111)
+    }, {entropy: 0})
+    timeline.setTimeout(function(){
+      console.log(222)
+    }, {entropy: 5000})
+    timeline.setTimeout(function(){
+      console.log(timeline.currentTime)
+      timeline.playbackRate = 1.0
+    }, 500)
+    timeline.setTimeout(function(){
+      console.log(timeline.currentTime)
+      timeline.entropy = 4500
+    }, 2000)
+    timeline.passTo(1000)
+  </script>
+</body>
+</html>
