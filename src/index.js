@@ -75,6 +75,7 @@ class Timeline {
       to = time,
       timers = this[_timers]
 
+    this.markTime({time})
     ;[...timers].forEach(([id, timer]) => {
       const {isEntropy, delay, heading} = timer.time,
         {handler, startTime} = timer
@@ -93,7 +94,6 @@ class Timeline {
         timers.delete(id)
       }
     })
-    this.markTime({time})
     this.updateTimers()
   }
   // Both currentTime and entropy should be influenced by playbackRate.
