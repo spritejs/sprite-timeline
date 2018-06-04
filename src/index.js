@@ -85,11 +85,11 @@ class Timeline {
           || heading !== false && (to - from) * delay < 0
           || from < endTime && endTime < to
           || from > endTime && endTime > to) {
-          setTimeout(handler)
+          handler()
           timers.delete(id)
         }
       } else if(delay === 0) {
-        setTimeout(handler)
+        handler()
         timers.delete(id)
       }
     })
