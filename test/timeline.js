@@ -400,7 +400,7 @@ test.cb('timeline interval change playbackRate', _caseSync(t => {
       now = timeline.globalTime
       timeline.currentTime = 0
     }
-  }, 100)
+  }, {entropy: 100})
 }))
 
 test.cb('timeline interval change playbackRate 2', _caseSync(t => {
@@ -537,5 +537,5 @@ test.cb('timeline passTo', _caseSync(t => {
     t.end()
   }, 500)
 
-  timeline.passTo(1000)
+  timeline.currentTime = 1000
 }))

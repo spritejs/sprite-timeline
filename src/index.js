@@ -71,10 +71,6 @@ class Timeline {
     return localTime + (this.globalTime - globalTime) * this.playbackRate
   }
   set currentTime(time) {
-    this.markTime({time})
-    this.updateTimers()
-  }
-  passTo(time, entropy) {
     const from = this.currentTime,
       to = time,
       timers = this[_timers]
@@ -97,7 +93,8 @@ class Timeline {
         timers.delete(id)
       }
     })
-    this.currentTime = to
+    this.markTime({time})
+    this.updateTimers()
   }
   // Both currentTime and entropy should be influenced by playbackRate.
   // If current playbackRate is negative, the currentTime should go backwards
