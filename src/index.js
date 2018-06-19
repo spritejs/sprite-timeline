@@ -87,11 +87,11 @@ class Timeline {
           || from < endTime && endTime < to
           || from > endTime && endTime > to) {
           handler()
-          timers.delete(id)
+          this.clearTimeout(id)
         }
       } else if(delay === 0) {
         handler()
-        timers.delete(id)
+        this.clearTimeout(id)
       }
     })
     this.updateTimers()
