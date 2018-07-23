@@ -1,60 +1,68 @@
+const path = require('path')
+const fs = require('fs')
+
+let babelConf
+if(fs.existsSync('./.babelrc')) {
+  // use babel
+  babelConf = JSON.parse(fs.readFileSync('.babelrc'))
+}
+
 module.exports = function (env = {}) {
-  const path = require('path'),
-    fs = require('fs'),
-    packageConf = JSON.parse(fs.readFileSync('package.json', 'utf-8'))
+  const externals = {}
+  const aliasFields = ['browser', 'esnext']
+  const output = {
+    path: path.resolve(__dirname, 'dist'),
+    filename: 'sprite-timeline.js',
+    publicPath: '/js/',
+    library: 'Timeline',
+    libraryTarget: 'umd',
+  }
 
-  const version = packageConf.version,
-    proxyPort = 9091,
-    plugins = [],
-    jsLoaders = []
-
-  // if(env.production) {
-  //   // compress js in production environment
-
-  //   plugins.push(
-  //     new webpack.optimize.UglifyJsPlugin({
-  //       compress: {
-  //         warnings: false,
-  //         drop_console: false
-  //       }
-  //     })
-  //   )
-  // }
-
-  if(fs.existsSync('./.babelrc')) {
-    // use babel
-    const babelConf = JSON.parse(fs.readFileSync('.babelrc'))
-    jsLoaders.push({
-      loader: 'babel-loader',
-      options: babelConf,
-    })
+  if(env.production) {
+    output.filename = 'sprite-timeline.min.js'
   }
 
   return {
-    entry: './src/index.js',
-    output: {
-      filename: env.production ? `sprite-timeline-${version}.js` : 'index.js',
-      path: path.resolve(__dirname, 'dist'),
-      publicPath: '/js/',
-      library: 'Timeline',
-      libraryTarget: 'umd',
-    },
-
-    plugins,
+    mode: env.production ? 'production' : 'none',
+    entry: './src/index',
+    output,
 
     module: {
-      rules: [{
-        test: /\.js$/,
-        exclude: /(node_modules|bower_components)/,
-        use: jsLoaders,
-      }],
+      rules: [
+        {
+          test: /\.js$/,
+          exclude: /node_modules\/(?!(sprite-\w+)\/).*/,
+          use: {
+            loader: 'babel-loader',
+            options: babelConf,
+          },
+        },
+      ],
+
+      /* Advanced module configuration (click to show) */
     },
+    resolve: {
+      aliasFields,
+    },
+    externals,
+    // Don't follow/bundle these modules, but request them at runtime from the environment
+
+    stats: 'errors-only',
+    // lets you precisely control what bundle information gets displayed
 
     devServer: {
-      proxy: {
-        '*': `http://127.0.0.1:${proxyPort}`,
-      },
+      contentBase: path.join(__dirname, 'example'),
+      compress: true,
+      port: 9090,
+      // ...
     },
-    // devtool: 'inline-source-map',
+
+    plugins: [
+      // ...
+    ],
+    // list of additional plugins
+
+
+    /* Advanced configuration (click to show) */
   }
 }

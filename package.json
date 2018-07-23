@@ -1,28 +1,28 @@
 {
   "name": "sprite-timeline",
-  "version": "1.8.3",
+  "version": "1.9.0",
   "description": "Custom timelines  for manipulate sprite animation.",
   "main": "lib/index.js",
+  "esnext": {
+    "./lib/index.js": "./src/index.js"
+  },
   "directories": {
     "example": "example"
   },
   "scripts": {
     "test": "nyc ava --serial && rm -rf ./coverage && mkdir ./coverage && nyc report --reporter=text-lcov > ./coverage/lcov.info",
     "lint": "eslint 'src/**/*.js' --fix",
-    "start": "webpack-dev-server -d --quiet --port 9090 & http-server example -c-1 -p 9091",
+    "start": "webpack-dev-server --watch-poll",
     "build-node": "babel src -d lib --watch",
-    "deploy": "rm -rf dist/* && ./script/deploy.js",
+    "build": "rm -rf dist/* && ./script/build.js",
     "compile": "babel src -d lib --watch",
-    "prepublishOnly": "babel src -d lib && npm run deploy"
+    "prepublishOnly": "babel src -d lib && npm run build"
   },
   "keywords": [],
   "author": "",
   "repository": {
     "type": "git",
     "url": "https://github.com/spritejs/sprite-timeline"
-  },
-  "browser": {
-    "./lib/index.js": "./src/index.js"
   },
   "license": "MIT",
   "dependencies": {
@@ -33,7 +33,7 @@
     "babel-cli": "^6.26.0",
     "babel-core": "^6.24.0",
     "babel-eslint": "^7.2.3",
-    "babel-loader": "^6.4.1",
+    "babel-loader": "^7.1.5",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.3.2",
     "colors": "^1.1.2",
@@ -41,10 +41,10 @@
     "eslint": "^4.19.1",
     "eslint-config-75team": "^1.0.22",
     "eslint-plugin-html": "^4.0.3",
-    "http-server": "^0.11.1",
     "nyc": "^11.1.0",
-    "webpack": "^2.3.3",
-    "webpack-dev-server": "^2.4.2"
+    "webpack": "^4.16.1",
+    "webpack-cli": "^3.1.0",
+    "webpack-dev-server": "^3.1.5"
   },
   "ava": {
     "require": [
