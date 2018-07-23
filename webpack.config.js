@@ -24,7 +24,7 @@ module.exports = function (env = {}) {
 
   return {
     mode: env.production ? 'production' : 'none',
-    entry: './src/index',
+    entry: './src/_entry',
     output,
 
     module: {
