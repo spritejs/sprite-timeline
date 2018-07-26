@@ -1,4 +1,4 @@
-const Timeline = require('../lib/index')
+import Timeline from '../src/index'
 const colors = require('colors')
 const test = require("ava")
 
