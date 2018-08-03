@@ -279,7 +279,7 @@ var Timeline = function () {
       while (m > l && m < r) {
         if (entropy === timeMark[m].entropy) {
           return m;
-        } else if (entropy < timeMark[m].entropy) {
+        }if (entropy < timeMark[m].entropy) {
           r = m;
         } else if (entropy > timeMark[m].entropy) {
           l = m;
@@ -342,6 +342,7 @@ var Timeline = function () {
         _this2.clearTimeout(id);
       });
     }
+
     /*
       setTimeout(func, {delay: 100, isEntropy: true})
       setTimeout(func, {entropy: 100})
@@ -484,6 +485,7 @@ var Timeline = function () {
       });
       this.updateTimers();
     }
+
     // Both currentTime and entropy should be influenced by playbackRate.
     // If current playbackRate is negative, the currentTime should go backwards
     // while the entropy remain to go forwards.
@@ -498,6 +500,7 @@ var Timeline = function () {
 
       return entropy + Math.abs((this.globalEntropy - globalEntropy) * this.playbackRate);
     },
+
 
     // change entropy will NOT cause currentTime changing but may influence the pass
     // and the future of the timeline. (It may change the result of seek***Time)
@@ -2887,7 +2890,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function nowtime() {
   if (typeof performance !== 'undefined' && performance.now) {
     return performance.now();
-  } else if (typeof process !== 'undefined' && process.hrtime) {
+  }if (typeof process !== 'undefined' && process.hrtime) {
     var _process$hrtime = process.hrtime(),
         _process$hrtime2 = (0, _slicedToArray3.default)(_process$hrtime, 2),
         s = _process$hrtime2[0],

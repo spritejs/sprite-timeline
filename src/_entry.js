@@ -1,5 +1,5 @@
 // for webpack
 
-import Timeline from './index'
+import Timeline from './index';
 
-module.exports = Timeline
+module.exports = Timeline;
