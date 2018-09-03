@@ -347,6 +347,6 @@ class Timeline {
     return id;
   }
 }
-
+Timeline.nowtime = nowtime;
 export default Timeline;
-export {nowtime};
+
