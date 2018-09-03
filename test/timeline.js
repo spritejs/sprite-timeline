@@ -71,19 +71,8 @@ test('default timeline', _case(async (t) => {
 }))
 
 test('nowtime', _case(async (t) => {
-  const performance = global.performance
-  if(performance){
-    global.performance = null
-  } else {
-    global.performance = {
-      now: () => Date.now()
-    }
-  }
-
   const timeline = new Timeline()
-  t.truthy(t.time_compare(timeline.globalTime, Date.now()))
-
-  global.performance = performance
+  t.truthy(t.time_compare(timeline.globalTime, 0))
 }))
 
 test('timeline originTime', _case(async (t) => {

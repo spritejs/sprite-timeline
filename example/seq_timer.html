@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+  <title>Demo</title>
+</head>
+<body>
+  <script src="/js/sprite-timeline.js"></script>
+  <script>
+    let ntime = 0,
+      startTime;
+    const timeline = new Timeline({playbackRate: 1, nowtime: () => ntime});
+    requestAnimationFrame(function update(t) {
+      if(!startTime) {
+        startTime = t;
+      }
+      ntime = t - startTime;
+      requestAnimationFrame(update);
+    });
+
+    const timeline2 = timeline.fork();
+
+    let i = 0;
+    const timerID = timeline2.setInterval(() => {
+      console.log(++i, timeline2.currentTime);
+      if(!(i % 5)) {
+        timeline.playbackRate++;
+      }
+      if(!(i % 20)) {
+        timeline2.clearTimeout(timerID);
+      }
+    }, 1000);
+  </script>
+</body>
+</html>
