@@ -1,11 +1,12 @@
-export function nowtime() {
-  if(typeof performance !== 'undefined' && performance.now) {
-    return performance.now();
-  } if(typeof process !== 'undefined' && process.hrtime) {
-    const [s, ns] = process.hrtime();
-    return s * 1e3 + ns * 1e-6;
+export function createNowTime(syncLocker = true) {
+  let nowtime = null;
+  if(Date.now) {
+    nowtime = Date.now;
+  } else {
+    nowtime = () => (new Date()).getTime();
   }
-  return Date.now ? Date.now() : (new Date()).getTime();
+
+  return nowtime;
 }
 
 /*

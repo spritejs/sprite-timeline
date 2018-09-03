@@ -1,4 +1,6 @@
-import {nowtime, formatDelay} from './utils';
+import {createNowTime, formatDelay} from './utils';
+
+const _nowtime = createNowTime();
 
 const defaultOptions = {
   originTime: 0,
@@ -10,8 +12,7 @@ const _timeMark = Symbol('timeMark'),
   _timers = Symbol('timers'),
   _originTime = Symbol('originTime'),
   _setTimer = Symbol('setTimer'),
-  _parent = Symbol('parent'),
-  _createTime = Symbol('createTime');
+  _parent = Symbol('parent');
 
 class Timeline {
   constructor(options, parent) {
@@ -40,7 +41,21 @@ class Timeline {
       globalEntropy: 0,
     }];
 
-    this[_createTime] = nowtime();
+    const nowtime = options.nowtime || _nowtime;
+    if(!parent) {
+      const createTime = nowtime();
+      Object.defineProperty(this, 'globalTime', {
+        get() {
+          return nowtime() - createTime;
+        },
+      });
+    } else {
+      Object.defineProperty(this, 'globalTime', {
+        get() {
+          return parent.currentTime;
+        },
+      });
+    }
 
     if(this[_parent]) {
       this[_timeMark][0].globalEntropy = this[_parent].entropy;
@@ -112,16 +127,16 @@ class Timeline {
   }
 
   get globalEntropy() {
-    return this[_parent] ? this[_parent].entropy : nowtime() - this[_createTime];
+    return this[_parent] ? this[_parent].entropy : this.globalTime;
   }
 
-  get globalTime() {
-    if(this[_parent]) {
-      return this[_parent].currentTime;
-    }
+  // get globalTime() {
+  //   if(this[_parent]) {
+  //     return this[_parent].currentTime;
+  //   }
 
-    return nowtime();
-  }
+  //   return nowtime();
+  // }
 
   // change entropy will NOT cause currentTime changing but may influence the pass
   // and the future of the timeline. (It may change the result of seek***Time)
