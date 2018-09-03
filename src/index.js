@@ -32,18 +32,20 @@ class Timeline {
     // timeMark sorted by entropy
     // If you reset entropy, all the timeMarks behind the new entropy
     // should be dropped
+    const ntime = options.ntime === undefined ? nowtime() : options.ntime;
+
     this[_timeMark] = [{
-      globalTime: this.globalTime,
+      globalTime: this.getGlobalTime(ntime),
       localTime: -options.originTime,
       entropy: -options.originTime,
       playbackRate: options.playbackRate,
       globalEntropy: 0,
     }];
 
-    this[_createTime] = nowtime();
+    this[_createTime] = ntime;
 
     if(this[_parent]) {
-      this[_timeMark][0].globalEntropy = this[_parent].entropy;
+      this[_timeMark][0].globalEntropy = this[_parent].getEntropy(ntime);
     }
 
     this[_originTime] = options.originTime;
@@ -59,13 +61,15 @@ class Timeline {
     return this[_timeMark][this[_timeMark].length - 1];
   }
 
-  markTime({time = this.currentTime, entropy = this.entropy, playbackRate = this.playbackRate} = {}) {
+  markTime(options = {}) {
+    const ntime = nowtime();
+    const {time = this.getCurrentTime(ntime), entropy = this.getEntropy(ntime), playbackRate = this.playbackRate} = options;
     const timeMark = {
-      globalTime: this.globalTime,
+      globalTime: this.getGlobalTime(ntime),
       localTime: time,
       entropy,
       playbackRate,
-      globalEntropy: this.globalEntropy,
+      globalEntropy: this.getGlobalEntropy(ntime),
     };
     this[_timeMark].push(timeMark);
   }
@@ -73,6 +77,11 @@ class Timeline {
   get currentTime() {
     const {localTime, globalTime} = this.lastTimeMark;
     return localTime + (this.globalTime - globalTime) * this.playbackRate;
+  }
+
+  getCurrentTime(ntime) {
+    const {localTime, globalTime} = this.lastTimeMark;
+    return localTime + (this.getGlobalTime(ntime) - globalTime) * this.playbackRate;
   }
 
   set currentTime(time) {
@@ -111,8 +120,20 @@ class Timeline {
     return entropy + Math.abs((this.globalEntropy - globalEntropy) * this.playbackRate);
   }
 
+  getEntropy(ntime) {
+    const {entropy, globalEntropy} = this.lastTimeMark;
+    return entropy + Math.abs((this.getGlobalEntropy(ntime) - globalEntropy) * this.playbackRate);
+  }
+
   get globalEntropy() {
     return this[_parent] ? this[_parent].entropy : nowtime() - this[_createTime];
+  }
+
+  getGlobalEntropy(ntime) {
+    if(this[_parent]) {
+      return this[_parent].getEntropy(ntime);
+    }
+    return (ntime === undefined ? nowtime() : ntime) - this[_createTime];
   }
 
   get globalTime() {
@@ -121,6 +142,13 @@ class Timeline {
     }
 
     return nowtime();
+  }
+
+  getGlobalTime(ntime) {
+    if(this[_parent]) {
+      return this[_parent].getCurrentTime(ntime);
+    }
+    return ntime === undefined ? nowtime() : ntime;
   }
 
   // change entropy will NOT cause currentTime changing but may influence the pass
@@ -291,7 +319,6 @@ class Timeline {
       globalTimeout = parent ? parent.setTimeout.bind(parent) : setTimeout;
 
     const heading = time.heading;
-    // console.log(heading, parent, delay)
     if(!parent && heading === false && delay < 0) {
       delay = Infinity;
     }
@@ -322,3 +349,4 @@ class Timeline {
 }
 
 export default Timeline;
+export {nowtime};
