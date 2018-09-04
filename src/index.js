@@ -26,7 +26,7 @@ class Timeline {
     if(parent) {
       this[_parent] = parent;
     }
-  
+
     const nowtime = options.nowtime || _nowtime;
     if(!parent) {
       const createTime = nowtime();

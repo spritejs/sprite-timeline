@@ -181,20 +181,6 @@ var Timeline = function () {
       this[_parent] = parent;
     }
 
-    // timeMark records the reference points on timeline
-    // Each time we change the playbackRate or currentTime or entropy
-    // A new timeMark will be generated
-    // timeMark sorted by entropy
-    // If you reset entropy, all the timeMarks behind the new entropy
-    // should be dropped
-    this[_timeMark] = [{
-      globalTime: this.globalTime,
-      localTime: -options.originTime,
-      entropy: -options.originTime,
-      playbackRate: options.playbackRate,
-      globalEntropy: 0
-    }];
-
     var nowtime = options.nowtime || _nowtime;
     if (!parent) {
       var createTime = nowtime();
@@ -210,6 +196,20 @@ var Timeline = function () {
         }
       });
     }
+
+    // timeMark records the reference points on timeline
+    // Each time we change the playbackRate or currentTime or entropy
+    // A new timeMark will be generated
+    // timeMark sorted by entropy
+    // If you reset entropy, all the timeMarks behind the new entropy
+    // should be dropped
+    this[_timeMark] = [{
+      globalTime: this.globalTime,
+      localTime: -options.originTime,
+      entropy: -options.originTime,
+      playbackRate: options.playbackRate,
+      globalEntropy: 0
+    }];
 
     if (this[_parent]) {
       this[_timeMark][0].globalEntropy = this[_parent].entropy;
