@@ -1,6 +1,7 @@
 interface TimelineOptions {
     originTime?: number;
     playbackRate?: number;
+    nowtime?: () => number;
 }
 
 interface TimeMark {
@@ -34,13 +35,7 @@ interface TimerRecord {
 }
 
 declare class Timeline {
-    private _timeMark: TimeMark[];
-    private _playbackRate: number;
-    private _timers: Map<Symbol, TimerRecord>;
-    private _originTime: number;
-    private _parent: Timeline;
-
-    constructor(options?: TimelineOptions | Timeline, parent?: Timeline);
+    constructor(options?: TimelineOptions | Timeline, parent?: Timeline): Timeline;
 
     get parent(): Timeline;
 
@@ -50,11 +45,11 @@ declare class Timeline {
 
     get currentTime(): number;
 
-    set currentTime(time: number);
+    set currentTime(time: number): void;
 
     get entropy(): number;
 
-    set entropy(entropy: number);
+    set entropy(entropy: number): void;
 
     get globalEntropy(): number;
 
@@ -68,7 +63,7 @@ declare class Timeline {
 
     get playbackRate(): number;
 
-    set playbackRate(number);
+    set playbackRate(number): void;
 
     get paused(): boolean;
 

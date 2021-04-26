@@ -1,10 +1,8 @@
 module.exports = {
-  extends: 'eslint-config-sprite',
-  plugins: ['html'],
+  extends: "eslint-config-sprite",
+  plugins: ["html"],
   globals: {
     Timeline: true,
   },
-  rules: {
-
-  },
+  exclude: ["*.d.ts"],
 };

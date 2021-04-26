@@ -10,6 +10,11 @@
   "directories": {
     "example": "example"
   },
+  "files": [
+    "dist",
+    "lib",
+    "types"
+  ],
   "scripts": {
     "test": "nyc ava --serial && rm -rf ./coverage && mkdir ./coverage && nyc report --reporter=text-lcov > ./coverage/lcov.info",
     "lint": "eslint 'src/**/*.js' --fix",
