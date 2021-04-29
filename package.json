@@ -3,12 +3,18 @@
   "version": "1.10.2",
   "description": "Custom timelines  for manipulate sprite animation.",
   "main": "lib/index.js",
+  "types": "./types/index.d.ts",
   "esnext": {
     "./lib/index.js": "./src/index.js"
   },
   "directories": {
     "example": "example"
   },
+  "files": [
+    "dist",
+    "lib",
+    "types"
+  ],
   "scripts": {
     "test": "nyc ava --serial && rm -rf ./coverage && mkdir ./coverage && nyc report --reporter=text-lcov > ./coverage/lcov.info",
     "lint": "eslint 'src/**/*.js' --fix",
